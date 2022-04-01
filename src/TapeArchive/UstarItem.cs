@@ -91,15 +91,31 @@ public class UstarItem : PrePosixItem
 
     protected override void WriteName(Span<byte> output)
     {
-        var value = new Span<byte>(Encoding.ASCII.GetBytes(this.Name.ToString()));
+        Span<byte> value = stackalloc byte[256];
+        var length = Encoding.ASCII.GetBytes(this.Name.ToString(), value);
 
-        if (value.Length > 255)
+        if (length > 255)
         {
             throw new ArchiveException("Name too long.");
         }
-        else if (value.Length > 100)
+        else if (length > 100)
         {
-            Span<byte> prefix, name;
+            SplitName(value[..length], output);
+        }
+        else
+        {
+            // Name can fit in the original field.
+            value[..length].CopyTo(output[..100]);
+
+            if (length < 100)
+            {
+                output[length] = 0;
+            }
+        }
+
+        static void SplitName(ReadOnlySpan<byte> value, Span<byte> output)
+        {
+            ReadOnlySpan<byte> prefix, name;
 
             // Check if we can split with 100 byte exactly as a last part.
             if (value[^101] == '/')
@@ -135,16 +151,6 @@ public class UstarItem : PrePosixItem
             if (name.Length < 100)
             {
                 output[name.Length] = 0;
-            }
-        }
-        else
-        {
-            // Name can fit in the original field.
-            value.CopyTo(output[..100]);
-
-            if (value.Length < 100)
-            {
-                output[value.Length] = 0;
             }
         }
     }
