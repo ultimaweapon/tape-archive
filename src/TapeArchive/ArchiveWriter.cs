@@ -8,19 +8,16 @@ using System.Threading.Tasks;
 
 internal sealed class ArchiveWriter : Stream
 {
-    public const int RecordSize = 512;
-
     private readonly Stream output;
     private readonly bool leaveOpen;
     private readonly IMemoryOwner<byte> buffer;
     private int buffered;
-    private bool disposed;
 
     public ArchiveWriter(Stream output, bool leaveOpen)
     {
         this.output = output;
         this.leaveOpen = leaveOpen;
-        this.buffer = MemoryPool<byte>.Shared.Rent(RecordSize);
+        this.buffer = MemoryPool<byte>.Shared.Rent(512);
 
         try
         {
@@ -55,32 +52,26 @@ internal sealed class ArchiveWriter : Stream
         set => this.output.WriteTimeout = value;
     }
 
-    private int Available => RecordSize - this.buffered;
+    private int Available => 512 - this.buffered;
 
     public override async ValueTask DisposeAsync()
     {
-        if (!this.disposed)
+        if (this.buffered == 0)
         {
-            if (this.buffered == 0)
-            {
-                // Write terminations only when we exit cleanly.
-                this.buffer.Memory.Span.Fill(0);
+            // Write terminations only when we exit cleanly.
+            this.buffer.Memory.Span.Fill(0);
 
-                await this.output.WriteAsync(this.buffer.Memory[..RecordSize]);
-                await this.output.WriteAsync(this.buffer.Memory[..RecordSize]);
-            }
-
-            // Dispose members.
-            if (!this.leaveOpen)
-            {
-                await this.output.DisposeAsync();
-            }
-
-            this.buffer.Dispose();
-            this.disposed = true;
+            await this.output.WriteAsync(this.buffer.Memory[..512]);
+            await this.output.WriteAsync(this.buffer.Memory[..512]);
         }
 
-        await base.DisposeAsync();
+        // Dispose members.
+        if (!this.leaveOpen)
+        {
+            await this.output.DisposeAsync();
+        }
+
+        this.buffer.Dispose();
     }
 
     public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback? callback, object? state)
@@ -107,7 +98,7 @@ internal sealed class ArchiveWriter : Stream
     {
         if (this.buffered > 0)
         {
-            await this.output.WriteAsync(this.buffer.Memory[..RecordSize], cancellationToken);
+            await this.output.WriteAsync(this.buffer.Memory[..512], cancellationToken);
 
             this.buffer.Memory.Span.Fill(0);
             this.buffered = 0;
@@ -156,7 +147,7 @@ internal sealed class ArchiveWriter : Stream
         while (written < buffer.Length)
         {
             // Copy remaining.
-            var destination = this.buffer.Memory.Span[..RecordSize];
+            var destination = this.buffer.Memory.Span[..512];
             var amount = Math.Min(buffer.Length - written, this.Available);
 
             buffer.Slice(written, amount).CopyTo(destination[this.buffered..]);
@@ -165,7 +156,7 @@ internal sealed class ArchiveWriter : Stream
             written += amount;
 
             // Flush.
-            if (this.buffered == RecordSize)
+            if (this.buffered == 512)
             {
                 this.output.Write(destination);
                 this.buffered = 0;
@@ -189,7 +180,7 @@ internal sealed class ArchiveWriter : Stream
         while (written < buffer.Length)
         {
             // Copy remaining.
-            var destination = this.buffer.Memory[..RecordSize];
+            var destination = this.buffer.Memory[..512];
             var amount = Math.Min(buffer.Length - written, this.Available);
 
             buffer.Slice(written, amount).CopyTo(destination[this.buffered..]);
@@ -198,7 +189,7 @@ internal sealed class ArchiveWriter : Stream
             written += amount;
 
             // Flush.
-            if (this.buffered == RecordSize)
+            if (this.buffered == 512)
             {
                 await this.output.WriteAsync(destination);
                 this.buffered = 0;
@@ -217,11 +208,11 @@ internal sealed class ArchiveWriter : Stream
 
     public override void WriteByte(byte value)
     {
-        var buffer = this.buffer.Memory.Span[..RecordSize];
+        var buffer = this.buffer.Memory.Span[..512];
 
         buffer[this.buffered++] = value;
 
-        if (this.buffered == RecordSize)
+        if (this.buffered == 512)
         {
             this.output.Write(buffer);
             this.buffered = 0;
@@ -232,31 +223,24 @@ internal sealed class ArchiveWriter : Stream
 
     protected override void Dispose(bool disposing)
     {
-        if (!this.disposed)
+        if (disposing)
         {
-            if (disposing)
+            if (this.buffered == 0)
             {
-                if (this.buffered == 0)
-                {
-                    // Write terminations only when we exit cleanly.
-                    this.buffer.Memory.Span.Fill(0);
+                // Write terminations only when we exit cleanly.
+                this.buffer.Memory.Span.Fill(0);
 
-                    this.output.Write(this.buffer.Memory.Span[..RecordSize]);
-                    this.output.Write(this.buffer.Memory.Span[..RecordSize]);
-                }
-
-                // Dispose members.
-                if (!this.leaveOpen)
-                {
-                    this.output.Dispose();
-                }
-
-                this.buffer.Dispose();
+                this.output.Write(this.buffer.Memory.Span[..512]);
+                this.output.Write(this.buffer.Memory.Span[..512]);
             }
 
-            this.disposed = true;
-        }
+            // Dispose members.
+            if (!this.leaveOpen)
+            {
+                this.output.Dispose();
+            }
 
-        base.Dispose(disposing);
+            this.buffer.Dispose();
+        }
     }
 }
