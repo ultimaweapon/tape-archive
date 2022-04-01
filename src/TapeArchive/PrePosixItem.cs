@@ -56,7 +56,12 @@ public class PrePosixItem : ArchiveItem
 
     protected internal override PrePosixItem CreateParent(ItemName name)
     {
-        return new(ItemType.Directory, name)
+        if (!name.IsDirectory)
+        {
+            throw new ArgumentException("The value is not a directory.", nameof(name));
+        }
+
+        return new(PrePosixType.Directory, name)
         {
             Mode = this.Mode,
             UserId = this.UserId,
@@ -104,7 +109,7 @@ public class PrePosixItem : ArchiveItem
         }
         else if (linkflag == '5')
         {
-            return new(ItemType.Directory);
+            return new(PrePosixType.Directory);
         }
         else if (linkflag == '6')
         {
@@ -120,7 +125,8 @@ public class PrePosixItem : ArchiveItem
         }
         else
         {
-            return new(ItemType.RegularFile);
+            // Treat all remaining type as a regular file.
+            return new(new ItemType(linkflag));
         }
     }
 
@@ -154,18 +160,6 @@ public class PrePosixItem : ArchiveItem
         }
 
         return new(value);
-    }
-
-    protected override void WriteType(Span<byte> output)
-    {
-        var typeflag = this.Type switch
-        {
-            ItemType.RegularFile => '0',
-            ItemType.Directory => '5',
-            _ => throw new ArchiveException("Type is not valid."),
-        };
-
-        output[156] = (byte)typeflag;
     }
 
     protected override void WriteMode(Span<byte> output)

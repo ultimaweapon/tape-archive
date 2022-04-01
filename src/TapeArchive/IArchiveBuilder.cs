@@ -23,7 +23,7 @@ public interface IArchiveBuilder : IAsyncDisposable, IDisposable
     /// </exception>
     /// <remarks>
     /// This method automatically create a sub-directory for <paramref name="item"/>. That mean is most cases you don't need to create an
-    /// <see cref="ArchiveItem"/> with <see cref="ItemType.Directory"/> type.
+    /// <see cref="ArchiveItem"/> for an empty directory.
     /// </remarks>
     ValueTask WriteItemAsync(ArchiveItem item, CancellationToken cancellationToken = default);
 }

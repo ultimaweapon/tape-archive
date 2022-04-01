@@ -34,7 +34,7 @@ public sealed class TapeArchiveTests
         {
             var u = Assert.IsType<UstarItem>(i);
 
-            Assert.Equal(ItemType.Directory, i.Type);
+            Assert.Equal(PrePosixType.Directory, i.Type);
             Assert.Equal("./", i.Name.ToString());
             Assert.Equal(493, i.Mode); // 755
             Assert.Equal(1000, i.UserId);
@@ -51,7 +51,7 @@ public sealed class TapeArchiveTests
         {
             var u = Assert.IsType<UstarItem>(i);
 
-            Assert.Equal(ItemType.Directory, i.Type);
+            Assert.Equal(PrePosixType.Directory, i.Type);
             Assert.Equal("./foo/", i.Name.ToString());
             Assert.Equal(493, i.Mode); // 755
             Assert.Equal(1000, i.UserId);
@@ -68,7 +68,7 @@ public sealed class TapeArchiveTests
         {
             var u = Assert.IsType<UstarItem>(i);
 
-            Assert.Equal(ItemType.Directory, i.Type);
+            Assert.Equal(PrePosixType.Directory, i.Type);
             Assert.Equal("./Foo/", i.Name.ToString());
             Assert.Equal(493, i.Mode); // 755
             Assert.Equal(1000, i.UserId);
@@ -86,7 +86,7 @@ public sealed class TapeArchiveTests
             using var reader = new StreamReader(i.Content, encoding: Encoding.ASCII, detectEncodingFromByteOrderMarks: false, leaveOpen: true);
             var u = Assert.IsType<UstarItem>(i);
 
-            Assert.Equal(ItemType.RegularFile, i.Type);
+            Assert.Equal(PrePosixType.RegularFile, i.Type);
             Assert.Equal("./Foo/file", i.Name.ToString());
             Assert.Equal(420, i.Mode); // 644
             Assert.Equal(1000, i.UserId);
@@ -103,7 +103,7 @@ public sealed class TapeArchiveTests
             using var reader = new StreamReader(i.Content, encoding: Encoding.ASCII, detectEncodingFromByteOrderMarks: false, leaveOpen: true);
             var u = Assert.IsType<UstarItem>(i);
 
-            Assert.Equal(ItemType.RegularFile, i.Type);
+            Assert.Equal(PrePosixType.RegularFile, i.Type);
             Assert.Equal("./file", i.Name.ToString());
             Assert.Equal(420, i.Mode); // 644
             Assert.Equal(1000, i.UserId);
@@ -119,7 +119,7 @@ public sealed class TapeArchiveTests
         {
             var u = Assert.IsType<UstarItem>(i);
 
-            Assert.Equal(ItemType.RegularFile, i.Type);
+            Assert.Equal(PrePosixType.RegularFile, i.Type);
             Assert.Equal("./empty", i.Name.ToString());
             Assert.Equal(420, i.Mode); // 644
             Assert.Equal(1000, i.UserId);
@@ -205,7 +205,7 @@ public sealed class TapeArchiveTests
         {
             var p = Assert.IsType<PrePosixItem>(i);
 
-            Assert.Equal(ItemType.Directory, i.Type);
+            Assert.Equal(PrePosixType.Directory, i.Type);
             Assert.Equal("./", i.Name.ToString());
             Assert.Equal(493, i.Mode); // 755
             Assert.Equal(1000, i.UserId);
@@ -222,7 +222,7 @@ public sealed class TapeArchiveTests
         {
             var p = Assert.IsType<PrePosixItem>(i);
 
-            Assert.Equal(ItemType.Directory, i.Type);
+            Assert.Equal(PrePosixType.Directory, i.Type);
             Assert.Equal("./foo/", i.Name.ToString());
             Assert.Equal(493, i.Mode); // 755
             Assert.Equal(1000, i.UserId);
@@ -239,7 +239,7 @@ public sealed class TapeArchiveTests
         {
             var p = Assert.IsType<PrePosixItem>(i);
 
-            Assert.Equal(ItemType.Directory, i.Type);
+            Assert.Equal(PrePosixType.Directory, i.Type);
             Assert.Equal("./Foo/", i.Name.ToString());
             Assert.Equal(493, i.Mode); // 755
             Assert.Equal(1000, i.UserId);
@@ -257,7 +257,7 @@ public sealed class TapeArchiveTests
             using var reader = new StreamReader(i.Content, encoding: Encoding.ASCII, detectEncodingFromByteOrderMarks: false, leaveOpen: true);
             var p = Assert.IsType<PrePosixItem>(i);
 
-            Assert.Equal(ItemType.RegularFile, i.Type);
+            Assert.Equal(PrePosixType.RegularFile, i.Type);
             Assert.Equal("./Foo/file", i.Name.ToString());
             Assert.Equal(420, i.Mode); // 644
             Assert.Equal(1000, i.UserId);
@@ -274,7 +274,7 @@ public sealed class TapeArchiveTests
             using var reader = new StreamReader(i.Content, encoding: Encoding.ASCII, detectEncodingFromByteOrderMarks: false, leaveOpen: true);
             var p = Assert.IsType<PrePosixItem>(i);
 
-            Assert.Equal(ItemType.RegularFile, i.Type);
+            Assert.Equal(PrePosixType.RegularFile, i.Type);
             Assert.Equal("./file", i.Name.ToString());
             Assert.Equal(420, i.Mode); // 644
             Assert.Equal(1000, i.UserId);
@@ -290,7 +290,7 @@ public sealed class TapeArchiveTests
         {
             var p = Assert.IsType<PrePosixItem>(i);
 
-            Assert.Equal(ItemType.RegularFile, i.Type);
+            Assert.Equal(PrePosixType.RegularFile, i.Type);
             Assert.Equal("./empty", i.Name.ToString());
             Assert.Equal(420, i.Mode); // 644
             Assert.Equal(1000, i.UserId);

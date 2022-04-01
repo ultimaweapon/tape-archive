@@ -23,7 +23,12 @@ public class UstarItem : PrePosixItem
 
     protected internal override UstarItem CreateParent(ItemName name)
     {
-        return new(ItemType.Directory, name)
+        if (!name.IsDirectory)
+        {
+            throw new ArgumentException("The value is not a directory.", nameof(name));
+        }
+
+        return new(PrePosixType.Directory, name)
         {
             Mode = this.Mode,
             UserId = this.UserId,

@@ -33,27 +33,11 @@ public class ArchiveItem
     /// <param name="name">
     /// Name of item.
     /// </param>
-    /// <exception cref="ArgumentException">
-    /// <paramref name="name"/> is not valid for <paramref name="type"/> (e.g. when <paramref name="type"/> is <see cref="ItemType.Directory"/>) but
-    /// <see cref="ItemName.IsDirectory"/> is <c>false</c>.
-    /// </exception>
     public ArchiveItem(ItemType type, ItemName name)
     {
-        if (name.IsDirectory)
-        {
-            if (type != ItemType.Directory)
-            {
-                throw new ArgumentException("The value represents a directory but the specified type is not.", nameof(name));
-            }
-        }
-        else if (type == ItemType.Directory)
-        {
-            throw new ArgumentException("The value represents a non-directory but the specified type is a directory.", nameof(name));
-        }
-
         this.type = type;
         this.name = name;
-        this.mode = type == ItemType.Directory ? 0x1ED : 0x1A4; // 755 for direcotry and 644 for other.
+        this.mode = name.IsDirectory ? 0x1ED : 0x1A4; // 755 for direcotry and 644 for other.
         this.userId = 0;
         this.groupId = 0;
         this.size = 0;
@@ -72,22 +56,7 @@ public class ArchiveItem
     public ItemName Name
     {
         get => LoadBackingField(this.name);
-        set
-        {
-            if (value.IsDirectory)
-            {
-                if (this.Type != ItemType.Directory)
-                {
-                    throw new ArgumentException("The value represents a directory but this item is not a directory.", nameof(value));
-                }
-            }
-            else if (this.Type == ItemType.Directory)
-            {
-                throw new ArgumentException("The value represents a non-directory but this item is a directory.", nameof(value));
-            }
-
-            this.name = value;
-        }
+        set => this.name = value;
     }
 
     public int Mode
@@ -138,9 +107,6 @@ public class ArchiveItem
     /// <exception cref="ArgumentOutOfRangeException">
     /// You are trying to set a negative value.
     /// </exception>
-    /// <exception cref="InvalidOperationException">
-    /// You are trying to set this property but this item does not support content (e.g. <see cref="Type"/> is <see cref="ItemType.Directory"/>).
-    /// </exception>
     /// <remarks>
     /// When writing archive you are responsible to make sure this value have the same size as <see cref="Content"/> otherwise the output archive will be
     /// corrupted.
@@ -153,10 +119,6 @@ public class ArchiveItem
             if (value < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(value));
-            }
-            else if (this.Type != ItemType.RegularFile)
-            {
-                throw new InvalidOperationException($"{nameof(this.Size)} cannot be set for this item.");
             }
 
             this.size = value;
@@ -274,41 +236,9 @@ public class ArchiveItem
 
     protected internal virtual async ValueTask ParseHeadersAsync(HeaderCollection headers, CancellationToken cancellationToken = default)
     {
-        // Type and name.
         this.type = await this.ParseTypeAsync(headers, cancellationToken);
         this.name = await this.ParseNameAsync(headers, cancellationToken);
-
-        if (this.name.IsDirectory)
-        {
-            if (this.type != ItemType.Directory)
-            {
-                throw new ArchiveException($"Name represents a directory but type is not.");
-            }
-        }
-        else if (this.type == ItemType.Directory)
-        {
-            throw new ArchiveException("Name is not a directory but type is.");
-        }
-
-        // Size.
         this.size = await this.ParseSizeAsync(headers, cancellationToken);
-
-        switch (this.type)
-        {
-            case ItemType.RegularFile:
-                break;
-            case ItemType.Directory:
-                if (this.size > 0)
-                {
-                    throw new ArchiveException("Directory with non-zero size is prohibited.");
-                }
-
-                break;
-            default:
-                throw new NotImplementedException();
-        }
-
-        // Remaining.
         this.mode = await this.ParseModeAsync(headers, cancellationToken);
         this.userId = await this.ParseUserIdAsync(headers, cancellationToken);
         this.groupId = await this.ParseGroupIdAsync(headers, cancellationToken);
@@ -317,7 +247,12 @@ public class ArchiveItem
 
     protected internal virtual ArchiveItem CreateParent(ItemName name)
     {
-        return new(ItemType.Directory, name)
+        if (!name.IsDirectory)
+        {
+            throw new ArgumentException("The value is not a directory.", nameof(name));
+        }
+
+        return new(ItemType.RegularFile, name)
         {
             Mode = this.Mode,
             UserId = this.UserId,
@@ -546,11 +481,7 @@ public class ArchiveItem
 
         if (linkflag == 0)
         {
-            // Check if name ended with "/".
-            var i = header[..100].IndexOf((byte)0);
-            var type = (i > 0 && header[i - 1] == '/') ? ItemType.Directory : ItemType.RegularFile;
-
-            return new(type);
+            return new(ItemType.RegularFile);
         }
         else if (linkflag == '1')
         {
@@ -673,11 +604,7 @@ public class ArchiveItem
 
     protected virtual void WriteType(Span<byte> output)
     {
-        output[156] = this.Type switch
-        {
-            ItemType.RegularFile or ItemType.Directory => 0,
-            _ => throw new ArchiveException("Type is not valid."),
-        };
+        output[156] = this.Type.Value;
     }
 
     protected virtual void WriteName(Span<byte> output)

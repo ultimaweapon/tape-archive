@@ -12,7 +12,7 @@ public sealed class UstarItemTests
     public void WriteName_WithPrefix_ShouldProduceCorrectHeader(string path)
     {
         // Arrange.
-        var subject = new UstarItem(ItemType.Directory, new(path));
+        var subject = new UstarItem(PrePosixType.Directory, new(path));
         var header = new byte[512 * subject.GetHeaderBlocksForWriting()];
 
         for (var i = 0; i < header.Length; i++)

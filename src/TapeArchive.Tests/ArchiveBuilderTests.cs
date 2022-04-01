@@ -43,7 +43,7 @@ public sealed class ArchiveBuilderTests
         await using var output = new MemoryStream();
         await using var subject = new ArchiveBuilder(output, true);
 
-        await subject.WriteItemAsync(new UstarItem(ItemType.Directory, new("./"))
+        await subject.WriteItemAsync(new UstarItem(PrePosixType.Directory, new("./"))
         {
             UserId = 1000,
             GroupId = 1000,
@@ -52,7 +52,7 @@ public sealed class ArchiveBuilderTests
             GroupName = "ultimaweapon",
         });
 
-        await subject.WriteItemAsync(new UstarItem(ItemType.Directory, new("./foo/"))
+        await subject.WriteItemAsync(new UstarItem(PrePosixType.Directory, new("./foo/"))
         {
             UserId = 1000,
             GroupId = 1000,
@@ -61,7 +61,7 @@ public sealed class ArchiveBuilderTests
             GroupName = "ultimaweapon",
         });
 
-        await subject.WriteItemAsync(new UstarItem(ItemType.Directory, new("./Foo/"))
+        await subject.WriteItemAsync(new UstarItem(PrePosixType.Directory, new("./Foo/"))
         {
             UserId = 1000,
             GroupId = 1000,
@@ -70,7 +70,7 @@ public sealed class ArchiveBuilderTests
             GroupName = "ultimaweapon",
         });
 
-        await subject.WriteItemAsync(new UstarItem(ItemType.RegularFile, new("./Foo/file"))
+        await subject.WriteItemAsync(new UstarItem(PrePosixType.RegularFile, new("./Foo/file"))
         {
             UserId = 1000,
             GroupId = 1000,
@@ -81,7 +81,7 @@ public sealed class ArchiveBuilderTests
             Size = content1.Length,
         });
 
-        await subject.WriteItemAsync(new UstarItem(ItemType.RegularFile, new("./file"))
+        await subject.WriteItemAsync(new UstarItem(PrePosixType.RegularFile, new("./file"))
         {
             UserId = 1000,
             GroupId = 1000,
@@ -92,7 +92,7 @@ public sealed class ArchiveBuilderTests
             Size = content2.Length,
         });
 
-        await subject.WriteItemAsync(new UstarItem(ItemType.RegularFile, new("./empty"))
+        await subject.WriteItemAsync(new UstarItem(PrePosixType.RegularFile, new("./empty"))
         {
             UserId = 1000,
             GroupId = 1000,

@@ -64,7 +64,7 @@ public sealed class ArchiveBuilder : IArchiveBuilder
         await item.Content.CopyToAsync(this.writer);
         await this.writer.FlushAsync();
 
-        if (item.Type == ItemType.Directory)
+        if (name.IsDirectory)
         {
             this.directories.Add(name);
         }
