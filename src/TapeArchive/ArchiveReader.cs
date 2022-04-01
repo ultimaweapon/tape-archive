@@ -6,27 +6,25 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-public sealed class ArchiveReader : IAsyncDisposable, IDisposable
+internal sealed class ArchiveReader : IAsyncDisposable, IDisposable
 {
-    public const int RecordSize = 512;
-
     private readonly Stream source;
     private readonly bool leaveOpen;
     private readonly IMemoryOwner<byte> buffer;
     private int position;
 
-    internal ArchiveReader(Stream source, bool leaveOpen)
+    public ArchiveReader(Stream source, bool leaveOpen)
     {
         this.source = source;
         this.leaveOpen = leaveOpen;
-        this.buffer = MemoryPool<byte>.Shared.Rent(RecordSize);
+        this.buffer = MemoryPool<byte>.Shared.Rent(512);
     }
 
-    public ReadOnlyMemory<byte> Buffer => this.buffer.Memory[..RecordSize];
+    public ReadOnlyMemory<byte> Buffer => this.buffer.Memory[..512];
 
-    internal bool CanTimeout => this.source.CanTimeout;
+    public bool CanTimeout => this.source.CanTimeout;
 
-    internal int ReadTimeout => this.source.ReadTimeout;
+    public int ReadTimeout => this.source.ReadTimeout;
 
     public void Dispose()
     {
@@ -53,9 +51,9 @@ public sealed class ArchiveReader : IAsyncDisposable, IDisposable
         var buffer = this.buffer.Memory;
         var total = 0;
 
-        while (total < RecordSize)
+        while (total < 512)
         {
-            var read = await this.source.ReadAsync(buffer[total..RecordSize], cancellationToken);
+            var read = await this.source.ReadAsync(buffer[total..512], cancellationToken);
 
             if (read == 0)
             {
@@ -70,13 +68,13 @@ public sealed class ArchiveReader : IAsyncDisposable, IDisposable
 
     public async ValueTask<int> ReadAsync(Memory<byte> output, CancellationToken cancellationToken = default)
     {
-        if (this.position == RecordSize)
+        if (this.position == 512)
         {
             await this.NextAsync(cancellationToken);
         }
 
         var start = this.position;
-        var end = Math.Min(start + output.Length, RecordSize);
+        var end = Math.Min(start + output.Length, 512);
 
         this.buffer.Memory[start..end].CopyTo(output);
         this.position = end;
@@ -90,12 +88,12 @@ public sealed class ArchiveReader : IAsyncDisposable, IDisposable
 
         while (advanced < count)
         {
-            if (this.position == RecordSize)
+            if (this.position == 512)
             {
                 await this.NextAsync(cancellationToken);
             }
 
-            var remaining = RecordSize - this.position;
+            var remaining = 512 - this.position;
 
             this.position += remaining;
             advanced += remaining;
