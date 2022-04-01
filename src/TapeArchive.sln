@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30114.105
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TapeArchive", "TapeArchive\TapeArchive.csproj", "{C49E352D-A1DA-4663-9615-A2F269334413}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TapeArchive.Tests", "TapeArchive.Tests\TapeArchive.Tests.csproj", "{5B91CA3F-C163-405A-A9D7-FE7F64E179DF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C49E352D-A1DA-4663-9615-A2F269334413}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C49E352D-A1DA-4663-9615-A2F269334413}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C49E352D-A1DA-4663-9615-A2F269334413}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C49E352D-A1DA-4663-9615-A2F269334413}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5B91CA3F-C163-405A-A9D7-FE7F64E179DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B91CA3F-C163-405A-A9D7-FE7F64E179DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5B91CA3F-C163-405A-A9D7-FE7F64E179DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B91CA3F-C163-405A-A9D7-FE7F64E179DF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
