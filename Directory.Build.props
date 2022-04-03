@@ -7,6 +7,10 @@
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)CodeAnalysis.ruleset</CodeAnalysisRuleSet>
+    <PackageProjectUrl>https://github.com/ultimicro/tape-archive</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Copyright>Copyright © Ultima Microsystems</Copyright>
+    <Authors>ultimaweapon</Authors>
   </PropertyGroup>
 
 </Project>
