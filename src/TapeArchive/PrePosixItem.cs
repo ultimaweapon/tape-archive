@@ -24,6 +24,16 @@ public class PrePosixItem : ArchiveItem
     {
     }
 
+    public override bool IsRegularFile
+    {
+        get => this.Type == PrePosixType.RegularFile || base.IsRegularFile;
+    }
+
+    public override bool IsDirectory
+    {
+        get => this.Type == PrePosixType.Directory || base.IsDirectory;
+    }
+
     public string UserName
     {
         get => LoadBackingField(this.userName);

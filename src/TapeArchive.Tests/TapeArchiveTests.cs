@@ -11,7 +11,7 @@ public sealed class TapeArchiveTests
     [Fact]
     public async Task ReadAsync_WithUstarFormat_ShouldSuccess()
     {
-        await using var reader = this.GetTestVector("ustar.tar");
+        await using var reader = GetTestVector("ustar.tar");
         await using var subject = new TapeArchive(reader, true);
         var assertions = new Func<ArchiveItem, Task>[]
         {
@@ -35,6 +35,8 @@ public sealed class TapeArchiveTests
             var u = Assert.IsType<UstarItem>(i);
 
             Assert.Equal(PrePosixType.Directory, i.Type);
+            Assert.False(i.IsRegularFile);
+            Assert.True(i.IsDirectory);
             Assert.Equal("./", i.Name.ToString());
             Assert.Equal(493, i.Mode); // 755
             Assert.Equal(1000, i.UserId);
@@ -52,6 +54,8 @@ public sealed class TapeArchiveTests
             var u = Assert.IsType<UstarItem>(i);
 
             Assert.Equal(PrePosixType.Directory, i.Type);
+            Assert.False(i.IsRegularFile);
+            Assert.True(i.IsDirectory);
             Assert.Equal("./foo/", i.Name.ToString());
             Assert.Equal(493, i.Mode); // 755
             Assert.Equal(1000, i.UserId);
@@ -69,6 +73,8 @@ public sealed class TapeArchiveTests
             var u = Assert.IsType<UstarItem>(i);
 
             Assert.Equal(PrePosixType.Directory, i.Type);
+            Assert.False(i.IsRegularFile);
+            Assert.True(i.IsDirectory);
             Assert.Equal("./Foo/", i.Name.ToString());
             Assert.Equal(493, i.Mode); // 755
             Assert.Equal(1000, i.UserId);
@@ -87,6 +93,8 @@ public sealed class TapeArchiveTests
             var u = Assert.IsType<UstarItem>(i);
 
             Assert.Equal(PrePosixType.RegularFile, i.Type);
+            Assert.True(i.IsRegularFile);
+            Assert.False(i.IsDirectory);
             Assert.Equal("./Foo/file", i.Name.ToString());
             Assert.Equal(420, i.Mode); // 644
             Assert.Equal(1000, i.UserId);
@@ -104,6 +112,8 @@ public sealed class TapeArchiveTests
             var u = Assert.IsType<UstarItem>(i);
 
             Assert.Equal(PrePosixType.RegularFile, i.Type);
+            Assert.True(i.IsRegularFile);
+            Assert.False(i.IsDirectory);
             Assert.Equal("./file", i.Name.ToString());
             Assert.Equal(420, i.Mode); // 644
             Assert.Equal(1000, i.UserId);
@@ -120,6 +130,8 @@ public sealed class TapeArchiveTests
             var u = Assert.IsType<UstarItem>(i);
 
             Assert.Equal(PrePosixType.RegularFile, i.Type);
+            Assert.True(i.IsRegularFile);
+            Assert.False(i.IsDirectory);
             Assert.Equal("./empty", i.Name.ToString());
             Assert.Equal(420, i.Mode); // 644
             Assert.Equal(1000, i.UserId);
@@ -136,7 +148,7 @@ public sealed class TapeArchiveTests
     [Fact]
     public async Task ReadAsync_LongPathWithUstar_ShouldSuccess()
     {
-        await using var reader = this.GetTestVector("ustar-prefix.tar");
+        await using var reader = GetTestVector("ustar-prefix.tar");
         await using var subject = new TapeArchive(reader, true);
         var expected = new[]
         {
@@ -182,7 +194,7 @@ public sealed class TapeArchiveTests
     [Fact]
     public async Task ReadAsync_WithGnuFormat_ShouldSuccess()
     {
-        await using var reader = this.GetTestVector("gnu.tar");
+        await using var reader = GetTestVector("gnu.tar");
         await using var subject = new TapeArchive(reader, true);
         var assertions = new Func<ArchiveItem, Task>[]
         {
@@ -206,6 +218,8 @@ public sealed class TapeArchiveTests
             var p = Assert.IsType<PrePosixItem>(i);
 
             Assert.Equal(PrePosixType.Directory, i.Type);
+            Assert.False(i.IsRegularFile);
+            Assert.True(i.IsDirectory);
             Assert.Equal("./", i.Name.ToString());
             Assert.Equal(493, i.Mode); // 755
             Assert.Equal(1000, i.UserId);
@@ -223,6 +237,8 @@ public sealed class TapeArchiveTests
             var p = Assert.IsType<PrePosixItem>(i);
 
             Assert.Equal(PrePosixType.Directory, i.Type);
+            Assert.False(i.IsRegularFile);
+            Assert.True(i.IsDirectory);
             Assert.Equal("./foo/", i.Name.ToString());
             Assert.Equal(493, i.Mode); // 755
             Assert.Equal(1000, i.UserId);
@@ -240,6 +256,8 @@ public sealed class TapeArchiveTests
             var p = Assert.IsType<PrePosixItem>(i);
 
             Assert.Equal(PrePosixType.Directory, i.Type);
+            Assert.False(i.IsRegularFile);
+            Assert.True(i.IsDirectory);
             Assert.Equal("./Foo/", i.Name.ToString());
             Assert.Equal(493, i.Mode); // 755
             Assert.Equal(1000, i.UserId);
@@ -258,6 +276,8 @@ public sealed class TapeArchiveTests
             var p = Assert.IsType<PrePosixItem>(i);
 
             Assert.Equal(PrePosixType.RegularFile, i.Type);
+            Assert.True(i.IsRegularFile);
+            Assert.False(i.IsDirectory);
             Assert.Equal("./Foo/file", i.Name.ToString());
             Assert.Equal(420, i.Mode); // 644
             Assert.Equal(1000, i.UserId);
@@ -275,6 +295,8 @@ public sealed class TapeArchiveTests
             var p = Assert.IsType<PrePosixItem>(i);
 
             Assert.Equal(PrePosixType.RegularFile, i.Type);
+            Assert.True(i.IsRegularFile);
+            Assert.False(i.IsDirectory);
             Assert.Equal("./file", i.Name.ToString());
             Assert.Equal(420, i.Mode); // 644
             Assert.Equal(1000, i.UserId);
@@ -291,6 +313,8 @@ public sealed class TapeArchiveTests
             var p = Assert.IsType<PrePosixItem>(i);
 
             Assert.Equal(PrePosixType.RegularFile, i.Type);
+            Assert.True(i.IsRegularFile);
+            Assert.False(i.IsDirectory);
             Assert.Equal("./empty", i.Name.ToString());
             Assert.Equal(420, i.Mode); // 644
             Assert.Equal(1000, i.UserId);
@@ -304,5 +328,5 @@ public sealed class TapeArchiveTests
         }
     }
 
-    private Stream GetTestVector(string name) => File.OpenRead(Path.Join("test-vectors", name));
+    private static Stream GetTestVector(string name) => File.OpenRead(Path.Join("test-vectors", name));
 }

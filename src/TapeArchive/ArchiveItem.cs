@@ -51,7 +51,20 @@ public class ArchiveItem
 
     protected delegate int? TrailChecker(ReadOnlySpan<byte> field);
 
-    public ItemType Type => LoadBackingField(this.type);
+    public ItemType Type
+    {
+        get => LoadBackingField(this.type);
+    }
+
+    public virtual bool IsRegularFile
+    {
+        get => this.Type == ItemType.RegularFile && !this.Name.IsDirectory;
+    }
+
+    public virtual bool IsDirectory
+    {
+        get => this.Type == ItemType.RegularFile && this.Name.IsDirectory;
+    }
 
     public ItemName Name
     {
