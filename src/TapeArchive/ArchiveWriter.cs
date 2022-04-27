@@ -56,16 +56,6 @@ internal sealed class ArchiveWriter : Stream
 
     public override async ValueTask DisposeAsync()
     {
-        if (this.buffered == 0)
-        {
-            // Write terminations only when we exit cleanly.
-            this.buffer.Memory.Span.Fill(0);
-
-            await this.output.WriteAsync(this.buffer.Memory[..512]);
-            await this.output.WriteAsync(this.buffer.Memory[..512]);
-        }
-
-        // Dispose members.
         if (!this.leaveOpen)
         {
             await this.output.DisposeAsync();
@@ -77,6 +67,21 @@ internal sealed class ArchiveWriter : Stream
     public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback? callback, object? state)
     {
         throw new NotSupportedException();
+    }
+
+    public async ValueTask<bool> CompleteAsync(CancellationToken cancellationToken = default)
+    {
+        if (this.buffered != 0)
+        {
+            return false;
+        }
+
+        this.buffer.Memory.Span.Fill(0);
+
+        await this.output.WriteAsync(this.buffer.Memory[..512], cancellationToken);
+        await this.output.WriteAsync(this.buffer.Memory[..512], cancellationToken);
+
+        return true;
     }
 
     public override void CopyTo(Stream destination, int bufferSize)
@@ -225,16 +230,6 @@ internal sealed class ArchiveWriter : Stream
     {
         if (disposing)
         {
-            if (this.buffered == 0)
-            {
-                // Write terminations only when we exit cleanly.
-                this.buffer.Memory.Span.Fill(0);
-
-                this.output.Write(this.buffer.Memory.Span[..512]);
-                this.output.Write(this.buffer.Memory.Span[..512]);
-            }
-
-            // Dispose members.
             if (!this.leaveOpen)
             {
                 this.output.Dispose();

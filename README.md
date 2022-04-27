@@ -48,8 +48,15 @@ await builder.WriteItemAsync(new(ItemType.RegularFile, new("./file1"))
     ModificationTime = DateTime.Now,
 });
 
-// The builder must be disposed to complete the archive even if no item has been written.
+await builder.CompleteAsync();
 ```
+
+## Breaking changes
+
+### 1.0 to 2.0
+
+Disposing of `IArchiveBuilder` is changed. In 1.0 it will complete the archive. For 2.0 it will abort the archive if archive is not completed with
+`CompleteAsync`. The aborted archive is a broken TAR and cannot be read by any TAR readers.
 
 ## Development
 

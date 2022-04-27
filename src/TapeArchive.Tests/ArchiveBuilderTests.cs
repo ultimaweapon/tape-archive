@@ -14,7 +14,7 @@ public sealed class ArchiveBuilderTests
         await using var output = new MemoryStream();
         await using var subject = new ArchiveBuilder(output, true);
 
-        await subject.DisposeAsync();
+        await subject.CompleteAsync();
 
         Assert.Equal(1024, output.Length);
     }
@@ -101,7 +101,7 @@ public sealed class ArchiveBuilderTests
             GroupName = "ultimaweapon",
         });
 
-        await subject.DisposeAsync();
+        await subject.CompleteAsync();
 
         // Assert.
         await using var references = new MemoryStream();

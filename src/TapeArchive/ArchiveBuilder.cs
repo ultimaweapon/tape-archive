@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 public sealed class ArchiveBuilder : IArchiveBuilder
 {
     private readonly HashSet<ItemName> directories;
-    private readonly ArchiveWriter writer;
+    private ArchiveWriter? writer;
     private bool disposed;
 
     public ArchiveBuilder(Stream output, bool leaveOpen)
@@ -32,8 +32,29 @@ public sealed class ArchiveBuilder : IArchiveBuilder
         GC.SuppressFinalize(this);
     }
 
+    public async ValueTask CompleteAsync(CancellationToken cancellationToken = default)
+    {
+        if (this.writer == null)
+        {
+            throw new InvalidOperationException("The archive already completed.");
+        }
+
+        if (!await this.writer.CompleteAsync(cancellationToken))
+        {
+            throw new InvalidOperationException("The archive cannot be completed due to it is already malformed.");
+        }
+
+        await this.writer.DisposeAsync();
+        this.writer = null;
+    }
+
     public async ValueTask WriteItemAsync(ArchiveItem item, CancellationToken cancellationToken = default)
     {
+        if (this.writer == null)
+        {
+            throw new InvalidOperationException("The archive already completed.");
+        }
+
         // Create a parent if not exists.
         var name = item.Name;
         var parent = name.Parent;
@@ -79,7 +100,7 @@ public sealed class ArchiveBuilder : IArchiveBuilder
 
         if (disposing)
         {
-            this.writer.Dispose();
+            this.writer?.Dispose();
         }
 
         this.disposed = true;
@@ -87,7 +108,12 @@ public sealed class ArchiveBuilder : IArchiveBuilder
 
     private async ValueTask DisposeAsyncCore()
     {
-        if (!this.disposed)
+        if (this.disposed)
+        {
+            return;
+        }
+
+        if (this.writer != null)
         {
             await this.writer.DisposeAsync();
         }
