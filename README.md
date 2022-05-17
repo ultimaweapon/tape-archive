@@ -18,7 +18,7 @@ TAR format have a lot of variants:
 7. AIX
 8. macOS
 
-Usually most reader will be able to extract any variants. This library currently support up to ustar. But just as I said before that most reader will be able to extract any variants, including this library. So you should not have any problem when reading. For writing try to stick with original or ustar. Usually original variant will be able to suite you need in most cases.
+Usually most reader will be able to extract any variants. This library currently support up to ustar. But just as I said before that most reader will be able to extract any variants, including this library. So you should not have any problem when reading. For writing try to stick with ustar due to some reader like GNU Tar does not handle file mode properly for origial variant.
 
 ### Reading
 
@@ -40,18 +40,21 @@ using System;
 using TapeArchive;
 
 await using var builder = new ArchiveBuilder(stream, true);
-
-await builder.WriteItemAsync(new(ItemType.RegularFile, new("./file1"))
+var item = new UstarItem(PrePosixType.RegularFile, new("./file1"))
 {
     Content = content,
     Size = size,
-    ModificationTime = DateTime.Now,
-});
+};
 
+await builder.WriteItemAsync(item, null);
 await builder.CompleteAsync();
 ```
 
 ## Breaking changes
+
+### 2.0 to 3.0
+
+`IArchiveBuilder.WriteItemAsync` has been added a parameter to specify how to create parent entries.
 
 ### 1.0 to 2.0
 
@@ -62,7 +65,7 @@ Disposing of `IArchiveBuilder` is changed. In 1.0 it will complete the archive. 
 
 ### Prerequisites
 
-- .NET 6 SDK
+- Latest .NET SDK
 
 ### Build
 

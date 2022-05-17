@@ -43,63 +43,75 @@ public sealed class ArchiveBuilderTests
         await using var output = new MemoryStream();
         await using var subject = new ArchiveBuilder(output, true);
 
-        await subject.WriteItemAsync(new UstarItem(PrePosixType.Directory, new("./"))
-        {
-            UserId = 1000,
-            GroupId = 1000,
-            ModificationTime = new(2022, 3, 20, 20, 55, 14, DateTimeKind.Utc),
-            UserName = "ultimaweapon",
-            GroupName = "ultimaweapon",
-        });
+        await subject.WriteItemAsync(
+            new UstarItem(PrePosixType.Directory, new("./"))
+            {
+                UserId = 1000,
+                GroupId = 1000,
+                ModificationTime = new(2022, 3, 20, 20, 55, 14, DateTimeKind.Utc),
+                UserName = "ultimaweapon",
+                GroupName = "ultimaweapon",
+            },
+            null);
 
-        await subject.WriteItemAsync(new UstarItem(PrePosixType.Directory, new("./foo/"))
-        {
-            UserId = 1000,
-            GroupId = 1000,
-            ModificationTime = new(2022, 03, 17, 20, 52, 53, DateTimeKind.Utc),
-            UserName = "ultimaweapon",
-            GroupName = "ultimaweapon",
-        });
+        await subject.WriteItemAsync(
+            new UstarItem(PrePosixType.Directory, new("./foo/"))
+            {
+                UserId = 1000,
+                GroupId = 1000,
+                ModificationTime = new(2022, 03, 17, 20, 52, 53, DateTimeKind.Utc),
+                UserName = "ultimaweapon",
+                GroupName = "ultimaweapon",
+            },
+            null);
 
-        await subject.WriteItemAsync(new UstarItem(PrePosixType.Directory, new("./Foo/"))
-        {
-            UserId = 1000,
-            GroupId = 1000,
-            ModificationTime = new(2022, 3, 17, 20, 53, 26, DateTimeKind.Utc),
-            UserName = "ultimaweapon",
-            GroupName = "ultimaweapon",
-        });
+        await subject.WriteItemAsync(
+            new UstarItem(PrePosixType.Directory, new("./Foo/"))
+            {
+                UserId = 1000,
+                GroupId = 1000,
+                ModificationTime = new(2022, 3, 17, 20, 53, 26, DateTimeKind.Utc),
+                UserName = "ultimaweapon",
+                GroupName = "ultimaweapon",
+            },
+            null);
 
-        await subject.WriteItemAsync(new UstarItem(PrePosixType.RegularFile, new("./Foo/file"))
-        {
-            UserId = 1000,
-            GroupId = 1000,
-            UserName = "ultimaweapon",
-            GroupName = "ultimaweapon",
-            ModificationTime = new(2022, 3, 17, 20, 53, 26, DateTimeKind.Utc),
-            Content = content1,
-            Size = content1.Length,
-        });
+        await subject.WriteItemAsync(
+            new UstarItem(PrePosixType.RegularFile, new("./Foo/file"))
+            {
+                UserId = 1000,
+                GroupId = 1000,
+                UserName = "ultimaweapon",
+                GroupName = "ultimaweapon",
+                ModificationTime = new(2022, 3, 17, 20, 53, 26, DateTimeKind.Utc),
+                Content = content1,
+                Size = content1.Length,
+            },
+            null);
 
-        await subject.WriteItemAsync(new UstarItem(PrePosixType.RegularFile, new("./file"))
-        {
-            UserId = 1000,
-            GroupId = 1000,
-            UserName = "ultimaweapon",
-            GroupName = "ultimaweapon",
-            ModificationTime = new(2022, 03, 17, 20, 54, 11, DateTimeKind.Utc),
-            Content = content2,
-            Size = content2.Length,
-        });
+        await subject.WriteItemAsync(
+            new UstarItem(PrePosixType.RegularFile, new("./file"))
+            {
+                UserId = 1000,
+                GroupId = 1000,
+                UserName = "ultimaweapon",
+                GroupName = "ultimaweapon",
+                ModificationTime = new(2022, 03, 17, 20, 54, 11, DateTimeKind.Utc),
+                Content = content2,
+                Size = content2.Length,
+            },
+            null);
 
-        await subject.WriteItemAsync(new UstarItem(PrePosixType.RegularFile, new("./empty"))
-        {
-            UserId = 1000,
-            GroupId = 1000,
-            UserName = "ultimaweapon",
-            ModificationTime = new(2022, 3, 20, 20, 55, 14, DateTimeKind.Utc),
-            GroupName = "ultimaweapon",
-        });
+        await subject.WriteItemAsync(
+            new UstarItem(PrePosixType.RegularFile, new("./empty"))
+            {
+                UserId = 1000,
+                GroupId = 1000,
+                UserName = "ultimaweapon",
+                ModificationTime = new(2022, 3, 20, 20, 55, 14, DateTimeKind.Utc),
+                GroupName = "ultimaweapon",
+            },
+            null);
 
         await subject.CompleteAsync();
 

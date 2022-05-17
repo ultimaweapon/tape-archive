@@ -21,7 +21,7 @@ public class UstarItem : PrePosixItem
 
     protected override byte PreferredNumericLeading => (byte)'0';
 
-    protected internal override UstarItem CreateParent(ItemName name)
+    protected internal override UstarItem CreateParent(ItemName name, ParentProperties? props)
     {
         if (!name.IsDirectory)
         {
@@ -30,12 +30,12 @@ public class UstarItem : PrePosixItem
 
         return new(PrePosixType.Directory, name)
         {
-            Mode = this.Mode,
-            UserId = this.UserId,
-            GroupId = this.GroupId,
-            ModificationTime = this.ModificationTime,
-            UserName = this.UserName,
-            GroupName = this.GroupName,
+            Mode = props?.Mode ?? GetParentMode(this.Mode),
+            UserId = props?.UserId ?? this.UserId,
+            GroupId = props?.GroupId ?? this.GroupId,
+            ModificationTime = props?.ModificationTime ?? this.ModificationTime,
+            UserName = (props as PrePosixParentProperties)?.UserName ?? this.UserName,
+            GroupName = (props as PrePosixParentProperties)?.GroupName ?? this.GroupName,
         };
     }
 

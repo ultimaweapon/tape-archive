@@ -258,7 +258,7 @@ public class ArchiveItem
         this.modificationTime = await this.ParseModificationTimeAsync(headers, cancellationToken);
     }
 
-    protected internal virtual ArchiveItem CreateParent(ItemName name)
+    protected internal virtual ArchiveItem CreateParent(ItemName name, ParentProperties? props)
     {
         if (!name.IsDirectory)
         {
@@ -267,10 +267,10 @@ public class ArchiveItem
 
         return new(ItemType.RegularFile, name)
         {
-            Mode = this.Mode,
-            UserId = this.UserId,
-            GroupId = this.GroupId,
-            ModificationTime = this.ModificationTime,
+            Mode = props?.Mode ?? GetParentMode(this.Mode),
+            UserId = props?.UserId ?? this.UserId,
+            GroupId = props?.GroupId ?? this.GroupId,
+            ModificationTime = props?.ModificationTime ?? this.ModificationTime,
         };
     }
 
@@ -380,6 +380,31 @@ public class ArchiveItem
         }
 
         return (long)result;
+    }
+
+    protected static int GetParentMode(int child)
+    {
+        var result = child;
+
+        // Owner.
+        if ((result & UnixPermissions.OwnerRead) != 0)
+        {
+            result |= UnixPermissions.OwnerExecute;
+        }
+
+        // Group.
+        if ((result & UnixPermissions.GroupRead) != 0)
+        {
+            result |= UnixPermissions.GroupExecute;
+        }
+
+        // Other.
+        if ((result & UnixPermissions.OtherRead) != 0)
+        {
+            result |= UnixPermissions.OtherExecute;
+        }
+
+        return result;
     }
 
     protected static DateTime ConvertUnixTime(long time)

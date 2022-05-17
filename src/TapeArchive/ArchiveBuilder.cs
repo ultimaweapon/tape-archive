@@ -19,12 +19,14 @@ public sealed class ArchiveBuilder : IArchiveBuilder
         this.writer = new(output, leaveOpen);
     }
 
+    /// <inheritdoc/>
     public void Dispose()
     {
         this.Dispose(true);
         GC.SuppressFinalize(this);
     }
 
+    /// <inheritdoc/>
     public async ValueTask DisposeAsync()
     {
         await this.DisposeAsyncCore();
@@ -32,6 +34,7 @@ public sealed class ArchiveBuilder : IArchiveBuilder
         GC.SuppressFinalize(this);
     }
 
+    /// <inheritdoc/>
     public async ValueTask CompleteAsync(CancellationToken cancellationToken = default)
     {
         if (this.writer == null)
@@ -48,7 +51,8 @@ public sealed class ArchiveBuilder : IArchiveBuilder
         this.writer = null;
     }
 
-    public async ValueTask WriteItemAsync(ArchiveItem item, CancellationToken cancellationToken = default)
+    /// <inheritdoc/>
+    public async ValueTask WriteItemAsync(ArchiveItem item, ParentProperties? parentProps, CancellationToken cancellationToken = default)
     {
         if (this.writer == null)
         {
@@ -61,7 +65,7 @@ public sealed class ArchiveBuilder : IArchiveBuilder
 
         if (parent != null && !this.directories.Contains(parent))
         {
-            await this.WriteItemAsync(item.CreateParent(parent), cancellationToken);
+            await this.WriteItemAsync(item.CreateParent(parent, parentProps), parentProps, cancellationToken);
         }
 
         // Create header.
