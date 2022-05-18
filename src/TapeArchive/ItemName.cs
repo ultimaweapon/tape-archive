@@ -229,7 +229,14 @@ public sealed class ItemName
 
     public override int GetHashCode()
     {
-        return this.parts.Sum(p => p.GetHashCode());
+        var result = 0;
+
+        foreach (var part in this.parts)
+        {
+            result ^= part.GetHashCode();
+        }
+
+        return result;
     }
 
     /// <summary>
